@@ -203,15 +203,21 @@ def CrossCovariance(a0, a1):
 	return cc_array
 
 
-def CheckCorrelationFromAnomalies(ts_list, time):
+def CheckCorrelationFromAnomalies(ts_list, time, interval):
 
 	current_anomalies = []
 	anomalies_count = 0
 
-	# Trying to generate a group of anomalies
+	#Only correlate anomalies from ts that have the same interval.
+	ts_list_interval = []
 	for series in ts_list:
+		if (series.interval == interval):
+			ts_list_interval.append(series)
+
+	# Trying to generate a group of anomalies
+	for series in ts_list_interval:
 		for anomaly in series.anomalies_to_correlate:
-			if series.index - anomaly.end < max_neighborhood * 2 - 1:
+			if (series.index - anomaly.end < max_neighborhood * 2 - 1 and series.finished == False):
 				#Waiting because there could be an anomaly ahead still not read.
 				return
 			else:
@@ -227,7 +233,7 @@ def CheckCorrelationFromAnomalies(ts_list, time):
 	#	that timeframe. If that is the case, we correlate the
 	#	timeframe of the time series without looking for a specific
 	#	anomaly.
-	for series in ts_list:
+	for series in ts_list_interval:
 		if len(series.anomalies_to_correlate) == 0:
 			current_anomalies.append((series, None))
 		else:
@@ -291,17 +297,17 @@ def CheckCorrelationFromAnomalies(ts_list, time):
 						time1start = str(a1[1].start)
 						time1end = str(a1[1].end)
 					else:
-						time0start = str(datetime.fromtimestamp(a0[0].start_time + a0[1].start * series.interval))
-						time0end = str(datetime.fromtimestamp(a0[0].start_time + a0[1].end * series.interval))
-						time1start = str(datetime.fromtimestamp(a1[0].start_time + a1[1].start * series.interval))
-						time1end = str(datetime.fromtimestamp(a1[0].start_time + a1[1].end * series.interval))
+						time0start = str(datetime.fromtimestamp(a0[0].start_time + a0[1].start * a0[0].interval))
+						time0end = str(datetime.fromtimestamp(a0[0].start_time + a0[1].end * a0[0].interval))
+						time1start = str(datetime.fromtimestamp(a1[0].start_time + a1[1].start * a1[0].interval))
+						time1end = str(datetime.fromtimestamp(a1[0].start_time + a1[1].end * a1[0].interval))
 
 					cc = RoundHalfUp(cc, 2)
 					print("Correlation found between " +
-						"anomaly from (" + time0start + " to " + time0end + ")" +
+						"anomaly from " + time0start + " to " + time0end +
 						" in " + a0[0].path +
 						" and " + 
-						"anomaly from (" + time1start + " to " + time1end + ")" +
+						"anomaly from " + time1start + " to " + time1end +
 						" in " + a1[0].path +
 						". (P=" + str(cc) + ")."
 						)
@@ -317,16 +323,16 @@ def CheckCorrelationFromAnomalies(ts_list, time):
 						time1start = str(a1_start+delay)
 						time1end = str(a1_start+delay+len_a0)
 					else:
-						time0start = str(datetime.fromtimestamp(a0[0].start_time + a0[1].start * series.interval))
-						time0end = str(datetime.fromtimestamp(a0[0].start_time + a0[1].end * series.interval))
-						time1start = str(datetime.fromtimestamp(a1[0].start_time + (a1_start+delay) * series.interval))
-						time1end = str(datetime.fromtimestamp(a1[0].start_time + (a1_start+delay+len_a0) * series.interval))
+						time0start = str(datetime.fromtimestamp(a0[0].start_time + a0[1].start * a0[0].interval))
+						time0end = str(datetime.fromtimestamp(a0[0].start_time + a0[1].end * a0[0].interval))
+						time1start = str(datetime.fromtimestamp(a1[0].start_time + (a1_start+delay) * a1[0].interval))
+						time1end = str(datetime.fromtimestamp(a1[0].start_time + (a1_start+delay+len_a0) * a1[0].interval))
 
-					print("correlation found between " +
-						"anomaly at (" + time0start + ":" + time0end + ")" +
+					print("Correlation found between " +
+						"anomaly from " + time0start + " to " + time0end +
 						" in " + a0[0].path +
 						" and " + 
-						"values at (" + time1start + ":" + time1end + ")" +
+						"values from " + time1start + " to " + time1end +
 						" in " + a1[0].path +
 						". (P=" + str(cc) + ")."
 						)
@@ -380,10 +386,18 @@ def CheckCorrelation(ts_list, interval):
 			avg_cc = (sec_cc + min_cc + hour_cc)/denominator
 			avg_cc = RoundHalfUp(avg_cc, 2)
 
-			print("continuous correlation between" +
+			if (avg_cc >= 0.8):
+
+				if (series0.is_rrd == False):
+					time = str(series0.index)
+				else:
+					time = str(datetime.fromtimestamp(series0.start_time + series0.index * series0.interval))
+
+				print("continuous correlation between" +
 							" ts " + series0.path +
 							" and" + 
 							" ts " + series1.path +
+							" at time " + time +
 							": " + str(avg_cc) + " ."
 							)
 
@@ -447,9 +461,12 @@ if __name__ == "__main__" :
 				else:
 					ts_count -= 1
 
-		CheckCorrelationFromAnomalies(ts_list, time)
+		for interval in intervals:
+			if ( min_interval  >  (time * min_interval) % interval ):
+				CheckCorrelationFromAnomalies(ts_list, time, interval)
+		
 		time += 1
 
 		for interval in intervals:
-			if (time * min_interval >= series.interval * (1+(series.index-1)//store_interval) * store_interval) :
+			if ( store_interval * interval - min_interval  <=  ((time - 1) * min_interval) % (store_interval * interval) ):
 				CheckCorrelation(ts_list, interval)
