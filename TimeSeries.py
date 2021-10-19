@@ -73,6 +73,7 @@ class TimeSeries:
 
 		self.values.append(new_value)
 		self.sec.append(new_value)
+		self.index += 1
 		
 		if (len(self.sec) == self.store_interval * 2):
 			self.min.append(mean(self.sec[:self.store_interval]))
@@ -88,7 +89,6 @@ class TimeSeries:
 	def ValueFromDat(self):
 		line = self.file.readline()
 		if (line != ""):
-			self.index += 1
 			return float(line)
 		else:
 			return None
@@ -100,7 +100,6 @@ class TimeSeries:
 			return None
 
 		new_value =  self.rrd_values[self.index]
-		self.index += 1
 		return new_value
 
 
