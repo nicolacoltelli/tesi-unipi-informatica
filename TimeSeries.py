@@ -47,7 +47,7 @@ class TimeSeries:
 		self.hour = []
 
 		#contains a tuple of count, mean, sum of squared differences from current mean.
-		self.statistics = (0,0,0)
+		self.prediction_statistics = (0,0,0)
 
 		self.anomalies_count = 0
 		self.anomalies = []

@@ -65,7 +65,7 @@ def des(series):
 
 def CheckAnomaly(series):
 
-	statistics = series.statistics
+	prediction_statistics = series.prediction_statistics
 	smoothing_status = series.smoothing_status
 
 	if (smoothing_status == None):
@@ -78,7 +78,7 @@ def CheckAnomaly(series):
 
 	if (count >= 10):
 
-		stddev = finalize(statistics)[1] ** 0.5
+		stddev = finalize(prediction_statistics)[1] ** 0.5
  
 		if ( prediction_error > 3 * stddev ):
 
@@ -108,7 +108,7 @@ def CheckAnomaly(series):
 			else:
 				series.AddAnomaly(count)
 
-	series.statistics = update(statistics, prediction_error)
+	series.prediction_statistics = update(prediction_statistics, prediction_error)
 
 
 def CheckCorrelationFromAnomalies(ts_list, time, interval):
