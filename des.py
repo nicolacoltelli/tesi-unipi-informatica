@@ -274,9 +274,6 @@ def CheckCorrelation(ts_list, interval):
 			if ( len(series1.sec) < 10):
 				continue
 
-			if (series0.interval != series1.interval):
-				continue
-
 			sec_cc = abs(CrossCovariance(series0.sec, series1.sec)[0])
 			denominator = 1
 
