@@ -4,3 +4,4 @@ sensors*
 __pycache__
 latency
 HT_Sensor_dataset.dat
+*.txt
