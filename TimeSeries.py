@@ -47,6 +47,7 @@ class TimeSeries:
 		self.hour = []
 
 		#contains a tuple of count, mean, sum of squared differences from current mean.
+		self.values_statistics = (0,0,0)
 		self.prediction_statistics = (0,0,0)
 
 		self.anomalies_count = 0
@@ -74,11 +75,13 @@ class TimeSeries:
 		self.values.append(new_value)
 		self.sec.append(new_value)
 		self.index += 1
-		
+
+		self.UpdateStatistics(new_value)
+
 		if (len(self.sec) == self.store_interval * 2):
 			self.min.append(mean(self.sec[:self.store_interval]))
 			self.sec = self.sec[self.store_interval:]
-		
+
 		if (len(self.min) == self.store_interval * 2):
 			self.hour.append(mean(self.min[:self.store_interval]))
 			self.min = self.min[self.store_interval:]
@@ -101,6 +104,18 @@ class TimeSeries:
 
 		new_value =  self.rrd_values[self.index]
 		return new_value
+
+
+	def UpdateStatistics(new_value):
+		self.values_statistics = update(self.values_statistics, new_value)
+
+
+	def GetMean():
+		return self.values_statistics[1]
+
+
+	def GetStdev():
+		return finalize(self.values_statistics)[1] ** 0.5
 
 
 	def GetLastAnomaly(self):
