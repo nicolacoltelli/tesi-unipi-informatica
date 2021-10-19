@@ -274,6 +274,37 @@ def CheckCorrelation(ts_list, interval):
 			if ( len(series1.sec) < 10):
 				continue
 
+			mean0 = series0.GetMean()
+			mean1 = series1.GetMean()
+			stdev0 = series0.GetStdev() 
+			stdev1 = series1.GetStdev()
+
+			if ( (mean0 == 0 and stdev0 == 0)  or  (mean1 == 0 and stdev1 == 0) ):
+				#one of the two series (or both) contains no significant data.
+				print("debug: no significant data")
+				continue
+
+			if (mean0 == 0 or mean1 == 0):
+				mean_ratio = 1
+			else:
+				mean_ratio = abs(mean0 / mean1)
+
+			adjusted_stdev0 = stdev0 / mean_ratio
+			stdev_difference = abs(adjusted_stdev0 - stdev1)
+			min_stdev = min(adjusted_stdev0, stdev1)
+
+			# @@@ check logic
+			if (min_stdev == 0):
+				stdev_difference_ratio = stdev_difference
+			else:
+				stdev_difference_ratio = stdev_difference / min_stdev
+
+			if (stdev_difference_ratio > 0.5):
+				print("debug: excluded")
+				continue
+			else:
+				print("debug: continue")
+
 			sec_cc = abs(CrossCovariance(series0.sec, series1.sec)[0])
 			denominator = 1
 
