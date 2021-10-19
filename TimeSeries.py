@@ -1,4 +1,5 @@
 from statistics import mean
+from welford import update, finalize
 import rrdtool
 
 
@@ -106,15 +107,15 @@ class TimeSeries:
 		return new_value
 
 
-	def UpdateStatistics(new_value):
+	def UpdateStatistics(self, new_value):
 		self.values_statistics = update(self.values_statistics, new_value)
 
 
-	def GetMean():
+	def GetMean(self):
 		return self.values_statistics[1]
 
 
-	def GetStdev():
+	def GetStdev(self):
 		return finalize(self.values_statistics)[1] ** 0.5
 
 
