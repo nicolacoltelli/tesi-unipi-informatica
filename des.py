@@ -308,7 +308,6 @@ def CheckCorrelation(ts_list, interval):
 
 			if ( (mean0 == 0 and stdev0 == 0)  or  (mean1 == 0 and stdev1 == 0) ):
 				#one of the two series (or both) contains no significant data.
-				print("debug: no significant data")
 				continue
 
 			if (mean0 == 0 or mean1 == 0):
@@ -357,7 +356,7 @@ def CheckCorrelation(ts_list, interval):
 							" and" + 
 							" ts " + series1.path +
 							" at time " + time +
-							": " + str(avg_cc) + " ." + " int @" + str(interval) 
+							": " + str(avg_cc) + " ."
 							)
 
 
