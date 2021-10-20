@@ -18,7 +18,7 @@ DEBUG = 0
 
 
 max_neighborhood = 5
-store_interval = 20
+store_interval = 60
 
 
 parser = argparse.ArgumentParser()
@@ -125,12 +125,48 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 	# Trying to generate a group of anomalies
 	for series in ts_list_interval:
 		for anomaly in series.anomalies_to_correlate:
+
 			if (series.index - anomaly.end < max_neighborhood * 2 - 1 and series.finished == False):
 				#Waiting because there could be an anomaly ahead still not read.
-				return
-			else:
-				current_anomalies.append((series, anomaly))
-				anomalies_count+=1
+				continue
+			
+			wait_unfinished = False
+			anomalies_around = []
+
+			for other_series in ts_list_interval:
+				if (other_series.id == series.id):
+					continue
+
+				if (len(series.anomalies_to_correlate) == 0):
+					anomalies_around.append((series, None))
+					continue
+			
+				anomalies_in_interval_count = 0
+				for other_anomaly in series.anomalies_to_correlate:
+
+					if (other_anomaly.start < anomaly.end + max_neighborhood * 2):
+						anomalies_in_interval_count += 1
+
+						if (other_anomaly.end == time):
+							#A candidate anomaly to correlate has been found, but it's not finished yet
+							wait_unfinished = True
+							break
+
+						anomalies_around.append((other_series, other_anomaly))
+
+				if (wait_unfinished == True):
+					break
+
+				if (anomalies_in_interval_count == 0):
+					anomalies_around.append((other_series, None))
+					continue
+
+			if (wait_unfinished == True):
+				continue
+
+			current_anomalies.append(((series, anomaly), anomalies_around))
+			series.anomalies_to_correlate.remove(anomaly)
+			anomalies_count+=1
 
 	# If there are no anomalies in the current group, return
 	if (anomalies_count == 0):
@@ -141,25 +177,16 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 	#	that timeframe. If that is the case, we correlate the
 	#	timeframe of the time series without looking for a specific
 	#	anomaly.
-	for series in ts_list_interval:
-		if len(series.anomalies_to_correlate) == 0:
-			current_anomalies.append((series, None))
-		else:
-			series.anomalies_to_correlate = []
+	#for series in ts_list_interval:
+	#	if len(series.anomalies_to_correlate) == 0:
+	#		current_anomalies.append((series, None))
+	#	else:
+	#		series.anomalies_to_correlate = []
 
-	for i in range(anomalies_count):
-		for j in range(i+1, len(current_anomalies)):
-			
-			a0 = current_anomalies[i]
-			a1 = current_anomalies[j]
+	for current_anomaly in current_anomalies:
+		a0 = current_anomaly[0]
 
-			# Don't correlate anomalies from the same time series.
-			if (a1[1] != None and a0[0].id == a1[0].id):
-				continue
-
-			#If series are from rrd, intervals must match
-			if (a0[0].is_rrd == True and a0[0].interval != a1[0].interval):
-				continue
+		for a1 in current_anomaly[1]:
 
 			a0_ts = a0[0].values
 			a1_ts = a1[0].values
@@ -333,7 +360,7 @@ def CheckCorrelation(ts_list, interval):
 							" and" + 
 							" ts " + series1.path +
 							" at time " + time +
-							": " + str(avg_cc) + " ."
+							": " + str(avg_cc) + " ." + " int @" + str(interval) 
 							)
 
 
