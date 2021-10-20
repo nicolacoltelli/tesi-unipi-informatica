@@ -362,6 +362,10 @@ def CheckCorrelation(ts_list, interval):
 
 if __name__ == "__main__" :
 
+	if (args.input == None):
+		print("Error: input path not specified. Use python3 correlation.py --input input_path")
+		exit(1)
+
 	ts_list = []
 
 	series_id = 0
@@ -371,13 +375,13 @@ if __name__ == "__main__" :
 			series_id += 1
 
 	if (series_id == 0):
-		print("No file with extension \".dat\" or \".rrd\" found in the specified directory.")
+		print("Error: no file with extension \".dat\" or \".rrd\" found in the specified directory.")
 		exit(1)
 
 	extension = ts_list[0].path[-3:]
 	for series in ts_list:
 		if series.path[-3:] != extension:
-			print("Files must be either only \".dat\" or only \".rrd\". No mixed datasources allowed.")
+			print("Error: files must be either only \".dat\" or only \".rrd\". No mixed datasources allowed.")
 			exit(1)
 
 	#lcm = least common multiple
