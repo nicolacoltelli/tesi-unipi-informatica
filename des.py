@@ -137,8 +137,8 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 				if (other_series.id == series.id):
 					continue
 
-				if (len(series.anomalies_to_correlate) == 0):
-					anomalies_around.append((series, None))
+				if (len(other_series.anomalies_to_correlate) == 0):
+					anomalies_around.append((other_series, None))
 					continue
 			
 				anomalies_in_interval_count = 0
