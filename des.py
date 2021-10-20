@@ -327,10 +327,7 @@ def CheckCorrelation(ts_list, interval):
 				stdev_difference_ratio = stdev_difference / min_stdev
 
 			if (stdev_difference_ratio > 0.5):
-				print("debug: excluded")
 				continue
-			else:
-				print("debug: continue")
 
 			sec_cc = abs(CrossCovariance(series0.sec, series1.sec)[0])
 			denominator = 1
