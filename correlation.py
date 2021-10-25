@@ -1,3 +1,4 @@
+import os
 import argparse
 from datetime import datetime
 
@@ -23,6 +24,7 @@ store_interval = 60
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str)
+parser.add_argument('--known', action='store_true')
 args = parser.parse_args()
 
 
@@ -111,7 +113,7 @@ def CheckAnomaly(series):
 	series.prediction_statistics = update(prediction_statistics, prediction_error)
 
 
-def CheckCorrelationFromAnomalies(ts_list, time, interval):
+def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 
 	current_anomalies = []
 	anomalies_count = 0
@@ -136,6 +138,10 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 			for other_series in ts_list_interval:
 				if (other_series.id == series.id):
 					continue
+
+				if (compare_name == True):
+					if (os.path.basename(series.path) != os.path.basename(other_series.path)):
+						continue
 
 				if (len(other_series.anomalies_to_correlate) == 0):
 					anomalies_around.append((other_series, None))
@@ -267,7 +273,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 						)
 
 
-def CheckCorrelation(ts_list, interval):
+def CheckCorrelation(ts_list, interval, compare_name):
 
 	#Only correlate ts that have the same interval.
 	ts_list_interval = []
@@ -294,6 +300,10 @@ def CheckCorrelation(ts_list, interval):
 
 			if ( len(series1.sec) < 10):
 				continue
+
+			if (compare_name == True):
+				if (os.path.basename(series0.path) != os.path.basename(series1.path)):
+					continue
 
 			mean0 = series0.GetMean()
 			mean1 = series1.GetMean()
@@ -400,10 +410,10 @@ if __name__ == "__main__" :
 
 		for interval in intervals:
 			if ( min_interval  >  (time * min_interval) % interval ):
-				CheckCorrelationFromAnomalies(ts_list, time, interval)
+				CheckCorrelationFromAnomalies(ts_list, time, interval, args.known)
 		
 		time += 1
 
 		for interval in intervals:
 			if ( store_interval * interval - min_interval  <=  ((time - 1) * min_interval) % (store_interval * interval) ):
-				CheckCorrelation(ts_list, interval)
+				CheckCorrelation(ts_list, interval, args.known)
