@@ -157,6 +157,11 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 				if (wait_unfinished == True):
 					break
 
+				# If two time series both have an anomaly we correlate them, but
+				# 	it might be that a time series does not have an anomaly in
+				#	that timeframe. If that is the case, we correlate the
+				#	timeframe of the time series without looking for a specific
+				#	anomaly.
 				if (anomalies_in_interval_count == 0):
 					anomalies_around.append((other_series, None))
 					continue
@@ -171,17 +176,6 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval):
 	# If there are no anomalies in the current group, return
 	if (anomalies_count == 0):
 		return
-
-	# If two time series both have an anomaly we correlate them, but
-	# 	it might be that a time series does not have an anomaly in
-	#	that timeframe. If that is the case, we correlate the
-	#	timeframe of the time series without looking for a specific
-	#	anomaly.
-	#for series in ts_list_interval:
-	#	if len(series.anomalies_to_correlate) == 0:
-	#		current_anomalies.append((series, None))
-	#	else:
-	#		series.anomalies_to_correlate = []
 
 	for current_anomaly in current_anomalies:
 		a0 = current_anomaly[0]
