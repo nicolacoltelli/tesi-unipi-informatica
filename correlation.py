@@ -19,12 +19,12 @@ DEBUG = 0
 
 
 max_neighborhood = 5
-store_interval = 60
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str)
 parser.add_argument('--known', action='store_true')
+parser.add_argument('--store', type=int, default=60)
 args = parser.parse_args()
 
 
@@ -371,6 +371,7 @@ if __name__ == "__main__" :
 		exit(1)
 
 	ts_list = []
+	store_interval = args.store
 
 	series_id = 0
 	for entry in ScanTree(args.input):
