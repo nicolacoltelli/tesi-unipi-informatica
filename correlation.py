@@ -15,7 +15,7 @@ from utils import (
 )
 
 
-DEBUG = 0
+DEBUG = 1
 
 
 max_neighborhood = 5
