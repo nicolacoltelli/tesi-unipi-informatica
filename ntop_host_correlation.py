@@ -114,7 +114,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 
 	current_anomalies = []
 	anomalies_count = 0
-	
+
 	# Trying to generate a group of anomalies
 	for series in ts_list:
 		for anomaly in series.anomalies_to_correlate:
@@ -214,13 +214,13 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 				cc_score = int((cc * 100) - 80)
 				if (a1[1] != None):
 					cc_score *= 2
-				anomaly_score = 10 + cc_score
+				correlation_score = 10 + cc_score
 
 				host0 = a0[0].host_id
 				host1 = a1[0].host_id
 				for edge in host_edges:
 					if ((host0 == edge.host0.id and host1 == edge.host1.id) or (host0 == edge.host1.id and host1 == edge.host0.id)):
-						edge.score += anomaly_score
+						edge.score += correlation_score
 						break
 
 
@@ -290,13 +290,13 @@ def CheckCorrelation(ts_list, host_edges, store_interval):
 			if (avg_cc >= 0.8):
 
 				cc_score = int((avg_cc * 100) - 80)
-				anomaly_score = store_interval + cc_score
+				correlation_score = store_interval + cc_score
 
 				host0 = series0.host_id
 				host1 = series1.host_id
 				for edge in host_edges:
 					if ((host0 == edge.host0.id and host1 == edge.host1.id) or (host0 == edge.host1.id and host1 == edge.host0.id)):
-						edge.score += anomaly_score
+						edge.score += correlation_score
 						break
 
 
