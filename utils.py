@@ -62,6 +62,19 @@ def ScanTree(path):
             yield entry
 
 
+def ScanHost(path, limit=3):
+    for entry in os.scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            if (limit > 0):
+                entry_name = os.path.basename(entry.path)
+                if (entry_name.isnumeric()):
+                    entry_num_name = int(entry_name)
+                    if (0 <= entry_num_name and entry_num_name <= 255):
+                        yield from ScanHost(entry.path, limit-1)
+            else:
+                yield entry
+
+
 def CC_Calculator(a0, a1, n):
 
     mean_a0 = mean(a0) 
