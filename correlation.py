@@ -148,7 +148,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 					continue
 			
 				anomalies_in_interval_count = 0
-				for other_anomaly in series.anomalies_to_correlate:
+				for other_anomaly in other_series.anomalies_to_correlate:
 
 					if (other_anomaly.start < anomaly.end + max_neighborhood * 2):
 						anomalies_in_interval_count += 1
