@@ -2,7 +2,7 @@
 
 folder="/var/lib/ntopng/2/rrd/"
 
-python3 correlation.py --input $folder --known --store 10 > out.txt
+python3 correlation.py --input $folder --known > out.txt
 
 grep "anomaly found" out.txt > anomaly_found.txt
 grep "Correlation found" out.txt > correlation_found.txt
