@@ -236,6 +236,8 @@ def CheckCorrelation(ts_list, host_edges, store_interval):
 	for i in range(series_count):
 
 		series0 = ts_list[i]
+		if (series0 == None):
+			continue
 		if (series0.finished == True):
 			continue
 		if (len(series0.sec) < 10 ):
@@ -244,6 +246,8 @@ def CheckCorrelation(ts_list, host_edges, store_interval):
 		for j in range(i+1, series_count):
 
 			series1 = ts_list[j]
+			if (series1 == None):
+				continue
 			if (series1.finished == True):
 				continue
 			if ( len(series1.sec) < 10):
