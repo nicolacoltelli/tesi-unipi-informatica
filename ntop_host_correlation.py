@@ -13,7 +13,16 @@ from utils import (
 	lcm,
 	RoundHalfUp,
 	ScanHost,
+	ScaledSigmoid,
 )
+
+import networkx
+import pygraphviz
+from networkx.drawing.nx_agraph import graphviz_layout
+import matplotlib.pyplot as plt
+import random
+
+max_correlation_score = 200
 
 
 DEBUG = 0
@@ -300,6 +309,51 @@ def CheckCorrelation(ts_list, host_edges, store_interval):
 						break
 
 
+def DrawHostGraph(host_list, host_edges):
+
+	G = networkx.Graph()
+
+	for host in host_list:
+		G.add_node(host.ip)
+
+	for edge in host_edges:
+
+		score = edge.score
+
+		#debug
+		#if (random.randint(1,100) <= 40):
+		#	score = 0
+		#else:
+		#	score = random.randint(0, max_correlation_score)
+
+		print(edge.host0.ip + " <===> " + edge.host1.ip + ": " + str(score))
+		score = ScaledSigmoid(score, max_correlation_score)
+
+		if (score < 1):
+			score = 1
+
+		#print(edge.host0.path + " <===> " + edge.host1.path + ": " + str(score))
+
+		#if (score == 0):
+		#	continue
+
+		#if (score > max_correlation_score):
+		#	score = max_correlation_score
+
+		#score = max_correlation_score - score
+		G.add_edge(edge.host0.ip,edge.host1.ip,len=score)
+
+
+	pos = graphviz_layout(G)
+	#networkx.draw_networkx(G,pos)
+	networkx.draw_networkx_nodes(G,pos)
+	#networkx.draw_networkx_edges(G,pos)
+	networkx.draw_networkx_labels(G,pos)
+	plt.show()
+
+
+
+
 if __name__ == "__main__" :
 
 	if (args.input == None):
@@ -361,8 +415,4 @@ if __name__ == "__main__" :
 
 		time += 1
 
-	for edge in host_edges:
-		host0 = edge.host0.path
-		host1 = edge.host1.path
-		score = edge.score
-		print(host0 + " <===> " + host1 + ": " + str(score))
+	DrawHostGraph(host_list, host_edges)
