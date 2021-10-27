@@ -109,3 +109,12 @@ def CrossCovariance(a0, a1):
         cc_array.append(cc)
 
     return cc_array
+
+
+def ScaledSigmoid(value, scale):
+    center = scale/2
+    sig_exponent = (-value + center)/(center/6)
+    sig_denom = 1 + math.e**sig_exponent
+    sig_result = 1/sig_denom
+    scaled_result = RoundHalfUp(sig_result * 100, 0)
+    return 100 - scaled_result
