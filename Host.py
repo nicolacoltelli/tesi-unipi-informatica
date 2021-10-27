@@ -20,6 +20,9 @@ class Host:
 					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, series_id+1, "rcvd", self.store_interval))
 					series_id += 2
 
+		directories = os.path.normpath(path).split(os.path.sep)
+		self.ip = directories[-4] + "." + directories[-3] + "." + directories[-2] + "." + directories[-1]
+
 	def GetTimeSeries(self, metric, series_type):
 		for ts in self.ts_list:
 			if (os.path.basename(ts.path) == metric and ts.type == series_type):
