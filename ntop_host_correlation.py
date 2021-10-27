@@ -25,7 +25,7 @@ import random
 max_correlation_score = 200
 
 
-DEBUG = 0
+DEBUG = 1
 
 
 max_neighborhood = 5
@@ -100,10 +100,6 @@ def CheckAnomaly(series):
 			else:
 				anomaly_probability = 1
 
-			if (DEBUG > 0):
-				time = str(datetime.fromtimestamp(series.start_time + count * series.interval))
-				print(series.path + ": anomaly found at time " + time + ". (P=" + str(anomaly_probability) + ")." )
-			
 			# First anomaly (special case).
 			if (series.anomalies_count == 0): 
 				series.AddAnomaly(count)
@@ -320,34 +316,18 @@ def DrawHostGraph(host_list, host_edges):
 
 		score = edge.score
 
-		#debug
-		#if (random.randint(1,100) <= 40):
-		#	score = 0
-		#else:
-		#	score = random.randint(0, max_correlation_score)
-
 		print(edge.host0.ip + " <===> " + edge.host1.ip + ": " + str(score))
 		score = ScaledSigmoid(score, max_correlation_score)
 
+		# avoid attempting to draw edges with length 0,
+		#	which would result in an error inside add_edge().
 		if (score < 1):
 			score = 1
 
-		#print(edge.host0.path + " <===> " + edge.host1.path + ": " + str(score))
-
-		#if (score == 0):
-		#	continue
-
-		#if (score > max_correlation_score):
-		#	score = max_correlation_score
-
-		#score = max_correlation_score - score
 		G.add_edge(edge.host0.ip,edge.host1.ip,len=score)
 
-
 	pos = graphviz_layout(G)
-	#networkx.draw_networkx(G,pos)
 	networkx.draw_networkx_nodes(G,pos)
-	#networkx.draw_networkx_edges(G,pos)
 	networkx.draw_networkx_labels(G,pos)
 	plt.show()
 
@@ -414,5 +394,13 @@ if __name__ == "__main__" :
 				CheckCorrelation(ts_group, host_edges, store_interval)
 
 		time += 1
+
+	if (DEBUG == 1):
+		for host in host_list:
+			print(host.ip)
+			for metric in metrics:
+				print("\t" + metric + " sent:\t" + str(host.GetTimeSeries(metric, "sent").values))
+				print("\t" + metric + " rcvd:\t" + str(host.GetTimeSeries(metric, "rcvd").values))
+			print()
 
 	DrawHostGraph(host_list, host_edges)
