@@ -122,6 +122,10 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 
 	# Trying to generate a group of anomalies
 	for series in ts_list:
+
+		if (series == None):
+			continue
+
 		for anomaly in series.anomalies_to_correlate:
 
 			if (series.index - anomaly.end < max_neighborhood * 2 - 1 and series.finished == False):
@@ -132,6 +136,10 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 			anomalies_around = []
 
 			for other_series in ts_list:
+
+				if (other_series == None):
+					continue
+
 				if (other_series.host_id == series.host_id):
 					continue
 
