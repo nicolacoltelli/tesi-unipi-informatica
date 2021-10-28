@@ -10,15 +10,14 @@ class Host:
 		self.store_interval = store_interval
 		self.metrics = metrics
 		self.ts_list = []
-		self.ts_count = len(metrics) * 2
+		self.ts_count = 0
 
-		series_id = 0
 		for entry in os.scandir(self.path):
 			if (entry.is_file() and entry.path.endswith(".rrd")):
 				if (os.path.basename(entry.path) in metrics):
-					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, series_id, "sent", self.store_interval))
-					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, series_id+1, "rcvd", self.store_interval))
-					series_id += 2
+					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, self.ts_count, "sent", self.store_interval))
+					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, self.ts_count+1, "rcvd", self.store_interval))
+					self.ts_count += 2
 
 		directories = os.path.normpath(path).split(os.path.sep)
 		self.ip = directories[-4] + "." + directories[-3] + "." + directories[-2] + "." + directories[-1]
