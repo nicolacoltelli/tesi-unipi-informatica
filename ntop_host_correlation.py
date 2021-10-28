@@ -411,8 +411,12 @@ if __name__ == "__main__" :
 		for host in host_list:
 			print(host.ip)
 			for metric in metrics:
-				print("\t" + metric + " sent:\t" + str(host.GetTimeSeries(metric, "sent").values))
-				print("\t" + metric + " rcvd:\t" + str(host.GetTimeSeries(metric, "rcvd").values))
+				ts_sent = host.GetTimeSeries(metric, "sent")
+				ts_rcvd = host.GetTimeSeries(metric, "rcvd")
+				if (ts_sent != None):
+					print("\t" + metric + " sent:\t" + str(ts_sent.values))
+				if (ts_rcvd != None):
+					print("\t" + metric + " rcvd:\t" + str(ts_rcvd.values))
 			print()
 
 	DrawHostGraph(host_list, host_edges)
