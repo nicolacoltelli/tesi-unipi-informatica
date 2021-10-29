@@ -6,9 +6,10 @@ import rrdtool
 class NtopHostTimeSeries:
 
 	
-	def __init__(self, path, host_id, series_id, series_type, store_interval):
+	def __init__(self, path, host, host_id, series_id, series_type, store_interval):
 
 		self.path = path
+		self.host = host
 		self.host_id = host_id
 		self.id = series_id
 		self.type = series_type
@@ -32,7 +33,7 @@ class NtopHostTimeSeries:
 				self.rrd_values.append(0)
 		
 			self.rrd_count += 1
-			
+
 		self.values = []
 		self.index = 0
 

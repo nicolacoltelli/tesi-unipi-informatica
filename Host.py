@@ -15,8 +15,8 @@ class Host:
 		for entry in os.scandir(self.path):
 			if (entry.is_file() and entry.path.endswith(".rrd")):
 				if (os.path.basename(entry.path) in metrics):
-					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, self.ts_count, "sent", self.store_interval))
-					self.ts_list.append(NtopHostTimeSeries(entry.path, host_id, self.ts_count+1, "rcvd", self.store_interval))
+					self.ts_list.append(NtopHostTimeSeries(entry.path, self, host_id, self.ts_count, "sent", self.store_interval))
+					self.ts_list.append(NtopHostTimeSeries(entry.path, self, host_id, self.ts_count+1, "rcvd", self.store_interval))
 					self.ts_count += 2
 
 		directories = os.path.normpath(path).split(os.path.sep)
