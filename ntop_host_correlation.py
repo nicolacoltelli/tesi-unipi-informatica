@@ -20,7 +20,6 @@ import networkx
 import pygraphviz
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
-import random
 
 max_correlation_score = 200
 
@@ -115,7 +114,7 @@ def CheckAnomaly(series):
 	series.prediction_statistics = update(prediction_statistics, prediction_error)
 
 
-def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
+def CheckCorrelationFromAnomalies(ts_list, time, graph):
 
 	current_anomalies = []
 	anomalies_count = 0
@@ -184,6 +183,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 		return
 
 	for current_anomaly in current_anomalies:
+
 		a0 = current_anomaly[0]
 
 		for a1 in current_anomaly[1]:
@@ -229,15 +229,12 @@ def CheckCorrelationFromAnomalies(ts_list, time, host_edges):
 					cc_score *= 2
 				correlation_score = 10 + cc_score
 
-				host0 = a0[0].host_id
-				host1 = a1[0].host_id
-				for edge in host_edges:
-					if ((host0 == edge.host0.id and host1 == edge.host1.id) or (host0 == edge.host1.id and host1 == edge.host0.id)):
-						edge.score += correlation_score
-						break
+				host0 = a0[0].host.ip
+				host1 = a1[0].host.ip
+				graph[host0][host1]["len"] += correlation_score
 
 
-def CheckCorrelation(ts_list, host_edges, store_interval):
+def CheckCorrelation(ts_list, graph, store_interval):
 
 	series_count = len(ts_list)
 
@@ -309,41 +306,20 @@ def CheckCorrelation(ts_list, host_edges, store_interval):
 				cc_score = int((avg_cc * 100) - 80)
 				correlation_score = store_interval + cc_score
 
-				host0 = series0.host_id
-				host1 = series1.host_id
-				for edge in host_edges:
-					if ((host0 == edge.host0.id and host1 == edge.host1.id) or (host0 == edge.host1.id and host1 == edge.host0.id)):
-						edge.score += correlation_score
-						break
+				host0 = series0.host.ip
+				host1 = series1.host.ip
+				graph[host0][host1]["len"] += correlation_score
 
 
-def DrawHostGraph(host_list, host_edges):
+def DrawHostGraph(graph):
 
-	G = networkx.Graph()
+	for edge in graph.edges(data=True):
+		print(edge[0] + " <===> " + edge[1] + ": " + str(edge[2]["len"]))
+		edge[2]["len"] = ScaledSigmoid(edge[2]["len"], max_correlation_score)
+		if (edge[2]["len"] < 1):
+			edge[2]["len"] = 1
 
-	for host in host_list:
-		G.add_node(host.ip)
-
-	for edge in host_edges:
-
-		score = edge.score
-
-		print(edge.host0.ip + " <===> " + edge.host1.ip + ": " + str(score))
-		score = ScaledSigmoid(score, max_correlation_score)
-
-		# avoid attempting to draw edges with length 0,
-		#	which would result in an error inside add_edge().
-		if (score < 1):
-			score = 1
-
-		G.add_edge(edge.host0.ip,edge.host1.ip,len=score)
-
-	pos = graphviz_layout(G)
-	networkx.draw_networkx_nodes(G,pos)
-	networkx.draw_networkx_labels(G,pos)
-	plt.show()
-
-
+	networkx.write_gpickle(graph, "fig.pkl")
 
 
 if __name__ == "__main__" :
@@ -356,14 +332,18 @@ if __name__ == "__main__" :
 	store_interval = args.store
 
 	host_id = 0
-	host_edges = []
+	graph = networkx.Graph()
 	
 	for entry in ScanHost(args.input):
 		
 		new_host = Host(entry.path, host_id, store_interval, metrics)
-	
+		if (new_host.ts_count == 0):
+			continue
+
+		graph.add_node(new_host.ip)
+
 		for host in host_list:
-			host_edges.append(HostEdge(host, new_host))
+			graph.add_edge(host.ip,new_host.ip,len=0)
 	
 		host_list.append(new_host)
 		host_id += 1
@@ -375,14 +355,15 @@ if __name__ == "__main__" :
 	ts_by_metric = []
 	for i in range(len(metrics)):
 		ts_by_metric.append([])
+		ts_by_metric.append([])
 		for host in host_list:
-			ts_by_metric[i].append(host.GetTimeSeries(metrics[i], "sent"))
-			ts_by_metric[i].append(host.GetTimeSeries(metrics[i], "rcvd"))
+			ts_by_metric[i*2].append(host.GetTimeSeries(metrics[i], "sent"))
+			ts_by_metric[i*2+1].append(host.GetTimeSeries(metrics[i], "rcvd"))
 
 	time = 0
 	host_count = len(host_list)
 	while host_count > 0:
-		
+
 		for host in host_list:
 			for series in host.ts_list:
 
@@ -399,11 +380,11 @@ if __name__ == "__main__" :
 							host_count -= 1
 
 		for ts_group in ts_by_metric:
-			CheckCorrelationFromAnomalies(ts_group, time, host_edges)
+			CheckCorrelationFromAnomalies(ts_group, time, graph)
 		
 		if ( store_interval - 1  <=  time % store_interval ):
 			for ts_group in ts_by_metric:
-				CheckCorrelation(ts_group, host_edges, store_interval)
+				CheckCorrelation(ts_group, graph, store_interval)
 
 		time += 1
 
@@ -419,4 +400,4 @@ if __name__ == "__main__" :
 					print("\t" + metric + " rcvd:\t" + str(ts_rcvd.values))
 			print()
 
-	DrawHostGraph(host_list, host_edges)
+	DrawHostGraph(graph)
