@@ -2,6 +2,9 @@ from statistics import mean
 from welford import update, finalize
 import rrdtool
 
+import matplotlib.pyplot as plt
+import os
+
 
 class TimeSeries:
 
@@ -135,9 +138,25 @@ class TimeSeries:
 
 
 	def PrintAnomalies(self):
+
 		print(self.path + ":")
+
+		save_path = "./output/anomalies/" + os.path.basename(self.path) + "/"
+		if not os.path.exists(save_path):
+		    os.makedirs(save_path)
+
+		count = 0
 		for anomaly in self.anomalies:
 			print("\t(" + str(anomaly.start) + ":" + str(anomaly.end) + ");")
+			lower = max(anomaly.start-20, 0)
+			upper = min(anomaly.end+20+1, self.index)
+			x = range(lower, upper)
+			plt.plot(x, self.values[lower:upper])
+			plt.title(self.path + " | (" + str(anomaly.start) + ":" + str(anomaly.end) + ")")
+			plt.savefig(save_path + "anomaly_" + str(count) + ".png", dpi=300, bbox_inches='tight')
+			plt.clf()
+			count+=1
+
 		print("")
 
 

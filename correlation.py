@@ -13,10 +13,11 @@ from utils import (
 	RoundHalfUp,
 	ScanTree,
 )
-
+import uuid
+import matplotlib.pyplot as plt
 
 DEBUG = 1
-
+PRINT = 0
 
 max_neighborhood = 5
 
@@ -218,9 +219,13 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 				else:
 					continue
 
+			len_a0 = a0_end - a0_start
+			len_a1 = a1_end - a1_start
+
 			cc_array = CrossCovariance(a0_ts[a0_start:a0_end], a1_ts[a1_start:a1_end])
 			abs_cc_array = [abs(elem) for elem in cc_array] 
 			cc = max(abs_cc_array)
+			delay = abs_cc_array.index(cc)
 
 			if (cc >= 0.8):
 
@@ -248,7 +253,6 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 						)
 				else:
 
-					delay = abs_cc_array.index(cc)
 					len_a0 = a0_end - a0_start
 					cc = RoundHalfUp(cc, 2)
 
@@ -271,6 +275,24 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 						" in " + a1[0].path +
 						". (P=" + str(cc) + ")."
 						)
+
+				if (PRINT > 0):
+					save_path = "./output/anomalies_correlation/"
+					if not os.path.exists(save_path):
+						os.makedirs(save_path)
+
+					if (len_a0 >= len_a1):
+						len_diff = len_a0 - len_a1
+						plt.plot(a0_ts[a0_start:a0_end])
+						plt.plot(a1_ts[a1_start-delay:a1_end+len_diff-delay])
+					else:
+						len_diff = len_a1 - len_a0
+						plt.plot(a1_ts[a1_start:a1_end])
+						plt.plot(a0_ts[a0_start-delay:a0_end+len_diff-delay])
+
+					plt.savefig(save_path + uuid.uuid4().hex + ".png", dpi=300, bbox_inches='tight')
+					plt.clf()
+
 
 
 def CheckCorrelation(ts_list, interval, compare_name):
@@ -418,3 +440,7 @@ if __name__ == "__main__" :
 		for interval in intervals:
 			if ( store_interval * interval - min_interval  <=  ((time - 1) * min_interval) % (store_interval * interval) ):
 				CheckCorrelation(ts_list, interval, args.known)
+
+	if (PRINT > 0):
+		for series in ts_list:
+			series.PrintAnomalies()
