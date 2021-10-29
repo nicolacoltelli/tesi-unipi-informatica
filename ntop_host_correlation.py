@@ -143,7 +143,6 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 					continue
 
 				if (len(other_series.anomalies_to_correlate) == 0):
-					anomalies_around.append((other_series, None))
 					continue
 			
 				anomalies_in_interval_count = 0
@@ -162,13 +161,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 				if (wait_unfinished == True):
 					break
 
-				# If two time series both have an anomaly we correlate them, but
-				# 	it might be that a time series does not have an anomaly in
-				#	that timeframe. If that is the case, we correlate the
-				#	timeframe of the time series without looking for a specific
-				#	anomaly.
 				if (anomalies_in_interval_count == 0):
-					anomalies_around.append((other_series, None))
 					continue
 
 			if (wait_unfinished == True):
@@ -194,29 +187,19 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 			a0_start = max(a0[1].start - max_neighborhood, 0)
 			a0_end = min(a0[1].end + max_neighborhood, len(a0_ts))
 
-			if (a1[1] != None):
-				#Both anomalies
-				a1_start = max(a1[1].start - max_neighborhood, 0)
-				a1_end = min(a1[1].end + max_neighborhood, len(a1_ts))
+			a1_start = max(a1[1].start - max_neighborhood, 0)
+			a1_end = min(a1[1].end + max_neighborhood, len(a1_ts))
 
-				len_a0 = a0_end - a0_start
-				len_a1 = a1_end - a1_start
+			len_a0 = a0_end - a0_start
+			len_a1 = a1_end - a1_start
 
-				if ( len_a0 > len_a1 ):
-					diff = len_a0 - len_a1
-					a1_start, a1_end = AlignAnomalies(a1_start, a1_end, len(a1_ts), diff)
+			if ( len_a0 > len_a1 ):
+				diff = len_a0 - len_a1
+				a1_start, a1_end = AlignAnomalies(a1_start, a1_end, len(a1_ts), diff)
 
-				if ( len_a1 > len_a0 ):
-					diff = len_a1 - len_a0
-					a0_start, a0_end = AlignAnomalies(a0_start, a0_end, len(a0_ts), diff)
-
-			else:
-				#a0 anomaly, a1 ts
-				if ( a0_end < len(a1_ts) ):
-					a1_start = max(a0_start - max_neighborhood, 0)
-					a1_end = min(a0_end + max_neighborhood, len(a1_ts))
-				else:
-					continue
+			if ( len_a1 > len_a0 ):
+				diff = len_a1 - len_a0
+				a0_start, a0_end = AlignAnomalies(a0_start, a0_end, len(a0_ts), diff)
 
 			cc_array = CrossCovariance(a0_ts[a0_start:a0_end], a1_ts[a1_start:a1_end])
 			abs_cc_array = [abs(elem) for elem in cc_array] 
@@ -225,8 +208,6 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 			if (cc >= 0.8):
 
 				cc_score = int((cc * 100) - 80)
-				if (a1[1] != None):
-					cc_score *= 2
 				correlation_score = 10 + cc_score
 
 				host0 = a0[0].host.ip
@@ -320,6 +301,8 @@ def DrawHostGraph(graph):
 			edge[2]["len"] = 1
 
 	networkx.write_gpickle(graph, "fig.pkl")
+
+
 
 
 if __name__ == "__main__" :
