@@ -22,7 +22,7 @@ pip3 install rrdtool
 ## Parametri
 * --input: Parametro obbligatorio, indica il path in cui applicare il programma. Vengono presi in input tutti i file contenuti nel path e nelle sue sottocartelle in modo ricorsivo.
 * --known: Parametro flag che indica al programma di correlare solamente serie temporali aventi lo stesso nome. Non è presente in ntop_host_correlation.py in quanto questa funzione è effettuata di default.
-* --store: Parametro che indica al programma quanti valori tenere in memoria per calcolare la correlazione continua. Ad esempio, se store è impostato a 60 verranno mantenuti in memoria gli ultimi 60*2-1 punti. Al raggiungimento di 60*2 punti, verrà mantenuta solamente la media dei primi 60. Il valore di default è 60. Si ricorda che se il numero di punti disponibili è minore di questo valore, non potrà essere calcolata la correlazione continua. 
+* --store: Parametro che indica al programma quanti valori tenere in memoria per calcolare la correlazione continua. Ad esempio, se store è impostato a 60 verranno mantenuti in memoria gli ultimi 60\*2-1 punti. Al raggiungimento di 60\*2 punti, verrà mantenuta solamente la media dei primi 60. Il valore di default è 60. Si ricorda che se il numero di punti disponibili è minore di questo valore, non potrà essere calcolata la correlazione continua. 
 
 ## Esecuzione
 
