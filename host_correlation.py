@@ -17,9 +17,6 @@ from utils import (
 )
 
 import networkx
-import pygraphviz
-from networkx.drawing.nx_agraph import graphviz_layout
-import matplotlib.pyplot as plt
 
 max_correlation_score = 200
 
