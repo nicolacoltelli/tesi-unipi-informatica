@@ -3,7 +3,7 @@ from welford import update, finalize
 import rrdtool
 
 
-class NtopHostTimeSeries:
+class HostTimeSeries:
 
 	
 	def __init__(self, path, host, host_id, series_id, series_type, store_interval):

@@ -2,7 +2,7 @@ import os
 import argparse
 from datetime import datetime
 
-from NtopHostTimeSeries import NtopHostTimeSeries, Anomaly
+from HostTimeSeries import HostTimeSeries, Anomaly
 from Host import Host, HostEdge
 from welford import update, finalize
 from utils import (
@@ -308,7 +308,7 @@ def DrawHostGraph(graph):
 if __name__ == "__main__" :
 
 	if (args.input == None):
-		print("Error: input path not specified. Use python3 ntop_host_correlation.py --input input_path")
+		print("Error: input path not specified. Use python3 host_correlation.py --input input_path")
 		exit(1)
 
 	host_list = []
