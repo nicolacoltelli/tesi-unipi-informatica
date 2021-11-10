@@ -2,7 +2,7 @@
 
 ## Descrizione
 
-Il progetto è costituito da 2 programmi: correlation.py e ntop_host_correlation.py. correlation.py ha lo scopo di ricercare correlazioni tra serie temporali generiche, senza nessun requisito riguardo una loro preclassificazione, mentre ntop_host_correlation.py ricerca correlazioni tra serie temporali rappresentanti host prodotte da ntop, disegnando poi una visualizzazione che sintetizza i risultati ottenuti.
+Il progetto è costituito da 2 programmi: correlation.py e host_correlation.py. correlation.py ha lo scopo di ricercare correlazioni tra serie temporali generiche, senza nessun requisito riguardo una loro preclassificazione, mentre host_correlation.py ricerca correlazioni tra serie temporali rappresentanti host, disegnando poi una visualizzazione che sintetizza i risultati ottenuti.
 
 ## Installazione e dipendendenze
 
@@ -14,14 +14,14 @@ Nel caso in cui l'installazione di graphviz non vada a buon finde, potrebbe esse
 ```
 apt-get install graphviz libgraphviz-dev pkg-config
 ```
-Se non si desidera utilizzare il programma ntop_host_correlation.py, è sufficiente installare il modulo rrdtool tramite comando:
+Se non si desidera utilizzare il programma host_correlation.py, è sufficiente installare il modulo rrdtool tramite comando:
 ```
 pip3 install rrdtool
 ```
 
 ## Parametri
 * --input: Parametro obbligatorio, indica il path in cui applicare il programma. Vengono presi in input tutti i file contenuti nel path e nelle sue sottocartelle in modo ricorsivo.
-* --known: Parametro flag che indica al programma di correlare solamente serie temporali aventi lo stesso nome. Non è presente in ntop_host_correlation.py in quanto questa funzione è effettuata di default.
+* --known: Parametro flag che indica al programma di correlare solamente serie temporali aventi lo stesso nome. Non è presente in host_correlation.py in quanto questa funzione è effettuata di default.
 * --store: Parametro che indica al programma quanti valori tenere in memoria per calcolare la correlazione continua. Ad esempio, se store è impostato a 60 verranno mantenuti in memoria gli ultimi 60\*2-1 punti. Al raggiungimento di 60\*2 punti, verrà mantenuta solamente la media dei primi 60. Il valore di default è 60. Si ricorda che se il numero di punti disponibili è minore di questo valore, non potrà essere calcolata la correlazione continua. 
 
 ## Esecuzione
@@ -43,10 +43,10 @@ Nel caso in cui si desideri testare il programma correlation.py con le serie tem
 Lo script salva poi i risultati in files .txt seprati per favorire la lettura.
 Potrebbe essere necessario avviare lo script con i privilegi di root per leggere la cartella /var/lib/ntopng/2/rrd/.
 
-### ntop_host_correlation.py
+### host_correlation.py
 Una volta installate le dipendenze, il programma può essere avviato, ad esempio, con comando:
 ```
-python3 ntop_host_correlation.py --input /var/lib/ntopng/2/rrd/ --store 10
+python3 host_correlation.py --input /var/lib/ntopng/2/rrd/ --store 10
 ```
 Anche in questo caso, potrebbe essere necessario avviare il programma con i privilegi di root per leggere la cartella /var/lib/ntopng/2/rrd/.
 
