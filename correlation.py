@@ -276,23 +276,27 @@ def CheckCorrelationFromAnomalies(ts_list, time, interval, compare_name):
 						". (P=" + str(cc) + ")."
 						)
 
-				if (PRINT > 0):
-					save_path = "./output/anomalies_correlation/"
-					if not os.path.exists(save_path):
-						os.makedirs(save_path)
+			if (PRINT > 0):
 
-					if (len_a0 >= len_a1):
-						len_diff = len_a0 - len_a1
-						plt.plot(a0_ts[a0_start:a0_end])
-						plt.plot(a1_ts[a1_start-delay:a1_end+len_diff-delay])
-					else:
-						len_diff = len_a1 - len_a0
-						plt.plot(a1_ts[a1_start:a1_end])
-						plt.plot(a0_ts[a0_start-delay:a0_end+len_diff-delay])
+				if (cc >= 0.8):
+					save_path = "./output/anomalies_correlation/verified/"
+				else:
+					save_path = "./output/anomalies_correlation/discarded/"
 
-					plt.savefig(save_path + uuid.uuid4().hex + ".png", dpi=300, bbox_inches='tight')
-					plt.clf()
+				if not os.path.exists(save_path):
+					os.makedirs(save_path)
 
+				if (len_a0 >= len_a1):
+					len_diff = len_a0 - len_a1
+					plt.plot(a0_ts[a0_start:a0_end])
+					plt.plot(a1_ts[a1_start-delay:a1_end+len_diff-delay])
+				else:
+					len_diff = len_a1 - len_a0
+					plt.plot(a1_ts[a1_start:a1_end])
+					plt.plot(a0_ts[a0_start-delay:a0_end+len_diff-delay])
+
+				plt.savefig(save_path + uuid.uuid4().hex + ".png", dpi=300, bbox_inches='tight')
+				plt.clf()
 
 
 def CheckCorrelation(ts_list, interval, compare_name):
@@ -384,6 +388,20 @@ def CheckCorrelation(ts_list, interval, compare_name):
 							" at time " + time +
 							": " + str(avg_cc) + " ."
 							)
+			if (PRINT > 0):
+				if (avg_cc >= 0.8):
+					save_path = "./output/generic_correlation/verified/"
+				else:
+					save_path = "./output/generic_correlation/discarded/"
+
+				if not os.path.exists(save_path):
+					os.makedirs(save_path)
+
+				plt.plot(series0.hour + series0.min + series0.sec)
+				plt.plot(series1.hour + series1.min + series1.sec)
+
+				plt.savefig(save_path + uuid.uuid4().hex + ".png", dpi=300, bbox_inches='tight')
+				plt.clf()
 
 
 if __name__ == "__main__" :
