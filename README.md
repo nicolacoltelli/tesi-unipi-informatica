@@ -10,7 +10,7 @@ Le dipendenze necessarie possono essere installate tramite comando:
 ```
 pip3 install -r requirements.txt
 ```
-Nel caso in cui l'installazione di graphviz non vada a buon finde, potrebbe essere necessario installare anche:
+Nel caso in cui l'installazione di graphviz non vada a buon fine, potrebbe essere necessario installare anche:
 ```
 apt-get install graphviz libgraphviz-dev pkg-config
 ```
@@ -27,7 +27,7 @@ pip3 install rrdtool
 ## Esecuzione
 
 ### correlation.py
-Una volta installato il modulo rrdtool, il programma può essere utilizzato su serie temporali salvate in file .rrd o .dat . Nel caso di file .dat, ogni riga deve contenere un valore. Non possono essere dati input file con estensioni non omogenee, ossia possono essere o solo file rrd, o solo file dat.
+Una volta installato il modulo rrdtool, il programma può essere utilizzato su serie temporali salvate in file .rrd o .dat . Nel caso di file .dat, ogni riga deve contenere un valore. Non possono essere dati in input file con estensioni non omogenee, ossia possono essere o solo file rrd, o solo file dat.
 
 Il programma può essere avviato tramite il comando:
 ```
@@ -40,16 +40,19 @@ Nel caso in cui si desideri testare il programma correlation.py con le serie tem
 ```
 ./ntop_test.sh
 ```
-Lo script salva poi i risultati in files .txt seprati per favorire la lettura.
+Lo script salva poi i risultati in files .txt separati per favorire la lettura.
 Potrebbe essere necessario avviare lo script con i privilegi di root per leggere la cartella /var/lib/ntopng/2/rrd/.
 
 ### host_correlation.py
 Una volta installate le dipendenze, il programma può essere avviato, ad esempio, con comando:
 ```
-python3 host_correlation.py --input /var/lib/ntopng/2/rrd/ --store 10
+python3 host_correlation.py --input host_input_path --store 10
 ```
-Anche in questo caso, potrebbe essere necessario avviare il programma con i privilegi di root per leggere la cartella /var/lib/ntopng/2/rrd/.
+Al termine dell'esecuzione, il programma fornirà in output anche un file contenente una visualizzazione rappresentante quali host sono stati identificati come simili. Per leggere il file contenente la visualizzazione è necessario usare il comando:
+```
+python3 ReadGraph.py
+```
 
 ## Note
 
-All' interno del programma è presente una variabile di debug impostata a 0. Se si desidera avere in output l'elenco di anomalie individuate (indipendentemente dalla correlazione) è necessario settare la variabile ad un valore maggiore di 0.
+All'interno di entrambi i programmi è presente una variabile di debug impostata a 1. Se non si desidera avere in output l'elenco di anomalie individuate (indipendentemente dalla correlazione) è necessario settare la variabile a 0.
