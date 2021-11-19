@@ -34,6 +34,9 @@ class HostTimeSeries:
 		
 			self.rrd_count += 1
 
+		self.rrd_values.pop()
+		self.rrd_count -= 1
+
 		self.values = []
 		self.index = 0
 
