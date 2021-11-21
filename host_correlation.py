@@ -25,7 +25,8 @@ DEBUG = 1
 
 
 max_neighborhood = 5
-metrics = ["active_flows.rrd", "bytes.rrd", "score.rrd", "total_flows.rrd"]
+#metrics = ["active_flows.rrd", "bytes.rrd", "score.rrd", "total_flows.rrd"]
+metrics = ["bytes.rrd", "score.rrd"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str)
@@ -198,9 +199,8 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 				diff = len_a1 - len_a0
 				a0_start, a0_end = AlignAnomalies(a0_start, a0_end, len(a0_ts), diff)
 
-			cc_array = CrossCovariance(a0_ts[a0_start:a0_end], a1_ts[a1_start:a1_end])
-			abs_cc_array = [abs(elem) for elem in cc_array] 
-			cc = max(abs_cc_array)
+			cc_array = CrossCovariance(a0_ts[a0_start:a0_end], a1_ts[a1_start:a1_end], True)
+			cc = max(cc_array)
 
 			if (cc >= 0.8):
 
@@ -263,17 +263,17 @@ def CheckCorrelation(ts_list, graph, store_interval):
 			if (stdev_difference_ratio > 0.5):
 				continue
 
-			sec_cc = abs(CrossCovariance(series0.sec, series1.sec)[0])
+			sec_cc = CrossCovariance(series0.sec, series1.sec, True)[0]
 			denominator = 1
 
 			min_cc = 0
 			hour_cc = 0
 			if (len(series0.min) >= 10 and len(series1.min) >= 10):
-				min_cc = abs(CrossCovariance(series0.min, series1.min)[0])
+				min_cc = CrossCovariance(series0.min, series1.min, True)[0]
 				denominator += 1
 
 				if (len(series0.hour) >= 10 and len(series1.hour) >= 10):
-					hour_cc = abs(CrossCovariance(series0.hour, series1.hour)[0])
+					hour_cc = CrossCovariance(series0.hour, series1.hour, True)[0]
 					denominator += 1
 
 			avg_cc = (sec_cc + min_cc + hour_cc)/denominator
