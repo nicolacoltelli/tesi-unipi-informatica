@@ -75,10 +75,22 @@ def ScanHost(path, limit=3):
                 yield entry
 
 
-def CC_Calculator(a0, a1, n):
+def CC_Calculator(a0, a1, n, host):
 
     mean_a0 = mean(a0) 
     mean_a1 = mean(a1) 
+
+    if (host == True):
+
+        if (mean_a0 == 0 or mean_a1 == 0):
+            return 0
+
+        max_mean = max(mean_a0, mean_a1)
+        min_mean = min(mean_a0, mean_a1)
+
+        if (max_mean/min_mean > 1.3):
+            return 0
+
     stddev_a0 = pstdev(a0)
     stddev_a1 = pstdev(a1)
 
@@ -93,7 +105,7 @@ def CC_Calculator(a0, a1, n):
     return covariance / (stddev_a0 * stddev_a1)
 
 
-def CrossCovariance(a0, a1):
+def CrossCovariance(a0, a1, host=False):
     
     if (len(a0) > len(a1)):
         swap = a0
@@ -105,7 +117,7 @@ def CrossCovariance(a0, a1):
 
     a0_len = len(a0)
     for t in range(0, delays):
-        cc = CC_Calculator(a0, a1[t:t+a0_len], a0_len)
+        cc = CC_Calculator(a0, a1[t:t+a0_len], a0_len, host)
         cc_array.append(cc)
 
     return cc_array
