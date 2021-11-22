@@ -209,6 +209,7 @@ def CheckCorrelationFromAnomalies(ts_list, time, graph):
 
 				host0 = a0[0].host.ip
 				host1 = a1[0].host.ip
+				graph[host0][host1][os.path.basename(a0[0].path)] += correlation_score
 				graph[host0][host1]["len"] += correlation_score
 
 
@@ -286,13 +287,19 @@ def CheckCorrelation(ts_list, graph, store_interval):
 
 				host0 = series0.host.ip
 				host1 = series1.host.ip
+				graph[host0][host1][os.path.basename(series0.path)] += correlation_score
 				graph[host0][host1]["len"] += correlation_score
 
 
 def DrawHostGraph(graph):
 
 	for edge in graph.edges(data=True):
-		print(edge[0] + " <===> " + edge[1] + ": " + str(edge[2]["len"]))
+
+		print(edge[0] + " <===> " + edge[1] + ":", end='')
+		for i in range(len(metrics)):
+			print(" (" + metrics[i] + ":" + str(edge[2][metrics[i]]) + ")", end='')
+		print("")
+
 		edge[2]["len"] = ScaledSigmoid(edge[2]["len"], max_correlation_score)
 		if (edge[2]["len"] < 1):
 			edge[2]["len"] = 1
@@ -324,6 +331,8 @@ if __name__ == "__main__" :
 
 		for host in host_list:
 			graph.add_edge(host.ip,new_host.ip,len=0)
+			for metric in metrics:
+				graph[host.ip][new_host.ip][metric] = 0
 	
 		host_list.append(new_host)
 		host_id += 1
